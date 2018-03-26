@@ -2,6 +2,8 @@ var express = require("express");
 var bodyParser = require("body-parser");
 var logger = require("morgan");
 var mongoose = require("mongoose");
+var exphbs = require('express-handlebars');
+
 
 // Our scraping tools
 // Axios is a promised-based http library, similar to jQuery's Ajax method
@@ -12,7 +14,8 @@ var cheerio = require("cheerio");
 // Require all models
 var db = require("./models");
 
-var PORT = 3000;
+var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoScraperdb"
+var PORT = process.env.PORT || 3000;
 
 // Initialize Express
 var app = express();
@@ -26,17 +29,28 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Use express.static to serve the public folder as a static directory
 app.use(express.static("public"));
 
+app.engine('handlebars', exphbs({ defaultLayout: 'main' }));
+app.set('view engine', 'handlebars');
+
 // By default mongoose uses callbacks for async queries, we're setting it to use promises (.then syntax) instead
 // Connect to the Mongo DB
 mongoose.Promise = Promise;
-mongoose.connect("mongodb://localhost/mongoScraperdb", {
-    useMongoClient: true
-});
+mongoose.connect(MONGODB_URI);
 
 // Routes
 
+
+app.get("/", (req,res) => {
+    console.log('Home route fired');
+    
+    db.Headline.find({}).then((response)=> {
+        console.log(response);
+        res.render("home");
+        
+    })
+})
 // A GET route for scraping the echojs website
-app.get("/", function (req, res) {
+app.get("/scrape", function (req, res) {
     // First, we grab the body of the html with request
     axios.get("https://www.billboard.com/news").then(function (response) {
         // Then, we load that into cheerio and save it to $ for a shorthand selector
@@ -72,6 +86,7 @@ app.get("/", function (req, res) {
     });
 });
 
+
 // Route for getting all headlines from the db
 app.get("/headlines", function (req, res) {
     // Grab every document in the headlines collection
@@ -89,7 +104,7 @@ app.get("/headlines", function (req, res) {
 // Route for grabbing a specific Article by id, populate it with it's comment
 app.get("/headlines/:id", function (req, res) {
     // Using the id passed in the id parameter, prepare a query that finds the matching one in our db...
-    db.Article.findOne({ _id: req.params.id })
+    db.Headline.findOne({ _id: req.params.id })
         // ..and populate all of the comments associated with it
         .populate("comment")
         .then(function (dbArticle) {

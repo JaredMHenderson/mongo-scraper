@@ -1,15 +1,17 @@
 // Grab headlines as json
 
-$.getJSON('/headlines', (data) => {
+$.getJSON('/headlines', function (data) {
     for (var i = 0; i < data.length; i++) {
         $('#headlines').append("<p data-id='" + data[i]._id + "'>" + data[i].title + "<br />" + data[i].link + "</p>");
     }
 });
 
-$(document).on('click', 'p', () => {
+$(document).on('click', 'p', function () {
     $("#comments").empty();
     
     var thisId = $(this).attr("data-id");
+    console.log(thisId);
+    
 
     $.ajax({
        method: "GET",
@@ -39,7 +41,7 @@ $(document).on('click', 'p', () => {
 });
 
 // When you click the savecomment button
-$(document).on("click", "#savecomment", () => {
+$(document).on("click", "#savecomment", function () {
     // Grab the id associated with the headline from the submit button
     var thisId = $(this).attr("data-id");
 
