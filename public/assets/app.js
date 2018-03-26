@@ -21,13 +21,28 @@ $(document).on('click', 'p', function () {
     .then(function(data){
         console.log(data);
         //The title of the headline
-        $("#comments").append(`<h2> ${data.title} </h2>`);
+        // $("#comments").append(`<h2> ${data.title} </h2>`);
+        $("#comments").append(
+            $("<h2>").text(`${ data.title }`)
+        );
         //An input to enter a new title
-        $("#comments").append(`<input id='titleinput' name='title>`);
+        // $("#comments").append(
+        //     $("<input>").attr("id", 'titleinput').attr("name", 'title')
+        // );
         //A text area to add a new comment body
-        $('#comments').append(`<textarea id='bodyinput' name='body'></textarea>`);
-        //A button to submit a new comment with the id of the headline saved to it
-        $('#comments').append("<button data-id='" + data._id + "' id='savecomment'>Save Comment</button>");
+        $('#comments').append(
+            $("<textarea>").attr({
+                "id":'bodyinput',
+                "name":'body',
+            }));
+        //A button to submit a new comment with the "id" of the headline saved to it
+        $('#comments').append(
+            $("<a>").attr({
+                "class": "btn btn-primary btn-lg",
+                "data-id": data._id,
+                "id": 'savecomment',
+            }).text("Save Comment")
+        );
         
         //if there is no comment in the headline
 
